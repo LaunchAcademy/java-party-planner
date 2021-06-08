@@ -1,8 +1,8 @@
-Here at Launch, we're a big fan of parties - spontaneous dance parties, board game nights, karaoke parties, puppy parties (which is mostly just something we wish was a very common type of party), the list goes on! We need help keeping track of all of these parties, and all of the wonderful friends we want to invite to each of them.
+Here at Launch, we're a big fan of parties - spontaneous dance parties, board game nights, karaoke parties, puppy parties (which is mostly just something we wish was a very common type of party), the list goes on! We need help keeping track of all of these parties, where we are throwing the parties, and all of the wonderful friends we want to invite to each of them.
 
 ## Introduction
 
-You'll be building a website that helps us manage our invitation lists, letting us create events, keep track of all of our friends, list which friends we want to invite to each of our parties, and even let our friends leave RSVPs on the page for us!
+You'll be building a website that helps us manage our invitation lists, letting us create events, show where each party will be, keep track of all of our friends, list which friends we want to invite to each of our parties, and even let our friends leave RSVPs on the page for us!
 
 Party Planner is primarily focused on various aspects of Spring, and the end result will be a full-fledged, database-backed web application!
 
@@ -21,6 +21,7 @@ Be sure to review the lessons on the relevant topics before diving into the work
 To get started, run:
 
 ```no-highlight
+createdb party_planner
 et get java-party-planner
 cd java-party-planner
 idea .
@@ -40,30 +41,51 @@ Each section contains user stories and acceptance criteria, with further instruc
 
 ### Day One
 
+#### Viewing and Creating Locations
+
+```no-highlight
+As a party planner
+I want to view a list of all of the party locations
+So I can see where I can throw my parties
+```
+
+Acceptance Criteria:
+
+- If I go to the root path (`/`), I should be redirected to `/locations`.
+- On the locations index page at `/locations`, I should see the the name of each party location.
+- If a location doesn't cost anything to rent it should show `Free` instead of showing price.
+
+Implementation details:
+
+- Each location is required to have a name, city, state.
+- The `rental price` is optional
+
+```no-highlight
+As a party planner
+I want to view the details of a location
+So that I can see where each place is
+```
+
+Acceptance Criteria:
+
+- On the locations index page, the name of each location should be a link to the location's show page `/locations/{id}`.
+- On the show page, I should see the name, city, state and rental price of the location.
+- If a location doesn't cost anything to rent it should show `Free` instead of showing price.
+
+```no-highlight
+As a party planner
+I want to add new locations to my locations list
+So that I can keep track of new locations that open up.
+```
+
+Acceptance Criteria:
+
+- There should be a link from the locations index page that takes you to the locations new page `/locations/new`. On this page there is a form to create a new location.
+- I must supply a name, city and state for my location. I can also optionally supply a rental price.
+- If the form submission is successful, I should be brought back to the locations index page.
+- If it is unsuccessful, I should remain on the `/locations/new` form page.
+
 #### Viewing and Creating Parties
-
-```no-highlight
-As a party planner
-I want to view a list of all parties I'm planning
-So that I can figure out who might be interested in joining me for each
-```
-
-Acceptance Criteria:
-
-- If I go to the root path, I should be redirected to `/parties`.
-- On the parties index page at `/parties`, I should see the name of each party.
-- Each of the parties should be parties retrieved from my database.
-
-```no-highlight
-As a party planner
-I want to view the details of a party
-So that I can learn more about what fun is planned
-```
-
-Acceptance Criteria:
-
-- On the parties index page, the name of each party should be a link to the party's show page.
-- On the show page, I should see the name, description, and location of the party.
 
 ```no-highlight
 As a party planner
@@ -73,11 +95,84 @@ So that I can plan all the fun things I want to do
 
 Acceptance Criteria:
 
-- There should be a link from the parties index page that takes you to the parties new page. On this page there is a form to create a new party.
+- There should be a link from the locations index page that takes you to the parties new page `/parties/new`. On this page there is a form to create a new party.
 - I must supply a name, location, and description of the party.
+- On the parties new page the form's location field should be a dropdown of existing locations retrieved from our database.
+  - _Note: You will want to display the location name on the form but pass the location id. This sounds more complex than it is. Checkout the docs linked here: https://www.thymeleaf.org/doc/tutorials/2.1/thymeleafspring.html#dropdownlist-selectors_
 - If the form submission is successful, I should be brought to the party's show page.
+- If it is unsuccessful, I should remain on the `/parties/new` form page.
 
-#### Viewing and Creating Friends
+Implementation details:
+
+- Each party is required to have a name and description.
+- Each party should be associated to a single location (Each location can have many parties).
+
+```no-highlight
+As a party planner
+I want to view a list of all parties for a location
+So that I will know what parties are taking place.
+```
+
+Acceptance Criteria:
+
+- If I go to a location's show page, I should see a list of all the parties that are associated with that location.
+- Each of the parties should display it's name and description.
+- I should only see the parties for this specific location.
+
+### Day Two
+
+#### Party API
+
+```no-highlight
+As a party planner
+I want a list API endpoint for my locations
+So I can see my locations as JSON
+```
+
+Acceptance Criteria:
+
+- When I go to `/api/v1/locations` I should see my list of my locations in JSON Format
+
+```no-highlight
+As a party planner
+I want an API endpoint for a specific location
+So I can see that location and it's associations as JSON
+```
+
+Acceptance Criteria:
+
+- When I go to `/api/v1/locations/{id}` I should see all the details of the given location.
+- Additionally I should also have a nested `parties` attribute that contains a list of all related parties.
+
+#### Validations and Error Handling
+
+```no-highlight
+As a party planner
+I want to receive error messages on my new location form
+So I know why my new location is not submitting
+```
+
+Acceptance Criteria:
+
+- If the new location form submission is unsuccessful, I should remain on the new locations page. The form should still be filled with the values that were provided when the form was previously submitted.
+- I should see error messages explaining why the form submission was unsuccessful.
+
+```no-highlight
+As a party planner
+I want to receive error messages on my new party form
+So I know why my new party is not submitting
+```
+
+Acceptance Criteria:
+
+- If the new party form submission is unsuccessful, I should remain on the new parties page. The form should still be filled with the values that were provided when the form was previously submitted.
+- I should see error messages explaining why the form submission was unsuccessful.
+
+## Optional User Stories
+
+**PLEASE DO NOT START THESE STORIES UNTIL YOU HAVE FINISHED THE CORE USER STORIES**:
+
+### Viewing and Creating Friends
 
 ```no-highlight
 As a party planner
@@ -89,6 +184,10 @@ Acceptance Criteria:
 
 - On the friends index page at `/friends`, I should see the first and last name of each of my friends.
 - Friends should be listed alphabetically by first name.
+
+Implementation details:
+
+- Each friend must have a first name and last name.
 
 ```no-highlight
 As a party planner
@@ -102,45 +201,18 @@ Acceptance Criteria:
 - I must supply a first and last name for my friend.
 - If the form submission is successful, I should be brought back to the friends index page.
 
-### Day Two
-
-#### Party API
-
-```no-highlight
-As a party planner
-I want a list API endpoint for my parties
-So I can see my parties as a JSON
-```
-
-Acceptance Criteria
-
-- When I go to `/api/v1/parties` I should see my list of parties in JSON Format
-
-```no-highlight
-As a party planner
-I want a list API endpoint for my friends
-So I can see my friends as a JSON
-```
-
-Acceptance Criteria
-
-- When I go to `/api/v1/friends` I should see my list of my friends in JSON Format
-
-
 #### Inviting Friends to a Party
 
 ```no-highlight
 As a party planner
-I want to see who I have already invited to my party
-So that I can plan who else to invite
+I want to view the details of a party
+So that I can learn more about what fun is planned
 ```
-
-_Note: Initially, you won't have friends invited to your parties until you have created an invite form. You may wish to hardcode an invite for a friend until the form is functional._
 
 Acceptance Criteria:
 
-- On a party's show page, I should see a list of the friends that I have invited to the party.
-- I should see each person's first and last name.
+- On the location's show page, the name of each party should be a link to the party's show page `/parties/{id}`.
+- On the party's show page, I should see the name and description of the party, and the name of the location.
 
 ```no-highlight
 As a party planner
@@ -150,34 +222,24 @@ So that I can know who is invited to each party
 
 Acceptance Criteria:
 
-- On a party's show page, I should see a form with a dropdown field that shows all of my friends.
-- When I select a friend and click the "Invite" button, their name should show in my list of invited friends.
+- On a party's show page, I should see a form with a dropdown field that shows all of my friends (every `friend` in the database should be an option).
+- When I select a friend and click the "Invite" button, their name should show in my list of invited friends on the party's show page.
+  - This will be taken care of in the next story.
 
-#### Validations and Error Handling
+Implementation details:
 
-```no-highlight
-As a party planner
-I want to receive error messages on my new party form
-So I know why my new party is not submitting
-```
-
-- If the new party form submission is unsuccessful, I should remain on the new parties page. The form should still be filled with the values that were provided when the form was previously submitted (this is already happening as a part of a prior story).
-- I should see error messages explaining why the form submission was unsuccessful.
+- You will need to create a join table `invitations` to set up the many-to-many association between `parties` and `friends`.
 
 ```no-highlight
 As a party planner
-I want to receive error messages on my new friend form
-So that I know why I am not able to add my friend
+I want to see who I have already invited to my party
+So that I can plan who else to invite
 ```
 
 Acceptance Criteria:
 
-- If the new friend form submission is unsuccessful, I should remain on the new friend page. The form should be filled with the values that were provided when the form was last submitted (this is already happening as a part of a prior story).
-- I should see error messages explaining why the form submission was unsuccessful.
-
-## Optional User Stories
-
-**PLEASE DO NOT START THESE STORIES UNTIL YOU HAVE FINISHED THE CORE USER STORIES**:
+- On a party's show page, I should see a list of the friends that I have invited to the party.
+- I should see each person's first and last name.
 
 ```no-highlight
 As a party planner
@@ -213,27 +275,3 @@ Acceptance Criteria:
 
 - On a party's show page, there should be a button to delete each invitee.
 - If I click the button, I should see a message that says that the invitee has been deleted, and their name should no longer show up on the show page.
-
-```no-highlight
-As a party planner
-I want to see RSVPs to a party
-So I know which friends will be attending
-```
-
-Acceptance Criteria:
-
-- On a party's show page, there should be a list of RSVPs. Each RSVP should include whether they can attend or not ("YES"/"NO"), the party member who left the RSVP, an optional included message, and the date of when the RSVP was created.
-- RSVPs should be listed most recent first.
-
-```no-highlight
-As a party member
-I want to submit my RSVP to a party
-So that I can communicate with the host whether I can attend or not
-```
-
-Acceptance Criteria:
-
-- On the party's show page, there should be a form to create a RSVP on the party.
-- I must select if I can attend or not, and select my name from a dropdown that only shows the people invited to this particular party. I can optionally supply a message for the RSVP.
-- If the new RSVP form submission is successful, I should be brought to the party's show page, and I should see a success message that lets me know that the RSVP has been successfully created and added to the list of RSVPs for this party.
-- If the new RSVP form submission is unsuccessful, I should remain on the party's show page, and I should see error messages explaining why the form submission was unsuccessful. The form should be pre-filled with the values that were provided when the form was submitted.
